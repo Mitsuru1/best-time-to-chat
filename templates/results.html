@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block title %}Results - Best Time to Chat{% endblock %}
+
+{% block content %}
+<section class="stacked-page">
+    <div class="section-heading with-actions">
+        <div>
+            <p class="eyebrow">Results</p>
+            <h1>{{ selected_day|friendly_date }}</h1>
+        </div>
+        <form class="date-picker" method="get">
+            <label for="date">Day</label>
+            <input id="date" name="date" type="date" value="{{ selected_day.isoformat() }}">
+            <button type="submit">Go</button>
+        </form>
+    </div>
+
+    <section class="card result-card">
+        {% if recommendation.setup_needed %}
+            <p class="eyebrow">Almost ready</p>
+            <h2>Create the second friend profile to unlock shared recommendations.</h2>
+            <a class="secondary-button" href="{{ url_for('setup') }}">Set up friend</a>
+        {% elif not recommendation.ready %}
+            <p class="eyebrow">Waiting</p>
+            {% set waiting_names = recommendation.waiting_users|map(attribute="username")|join(", ") %}
+            <h2>Waiting on {{ waiting_names }} for today's rhythm.</h2>
+            <p class="muted">Once both people save all 8 slots, the sun-meets-moon window will appear here.</p>
+            {% if current_user in recommendation.waiting_users %}
+                <a class="secondary-button" href="{{ url_for('daily_input', date=selected_day.isoformat()) }}">Fill in your day</a>
+            {% endif %}
+        {% elif recommendation.all_busy %}
+            <p class="eyebrow">No overlap today</p>
+            <h2>Everyone looks busy or low on overlap today.</h2>
+            <p class="muted">Try a low-pressure check-in or look at another day.</p>
+        {% else %}
+            {% set top_labels = recommendation.top|map(attribute="slot")|map(attribute="label")|join(" and ") %}
+            <p class="eyebrow">Best time today</p>
+            <h2>Looks like {{ top_labels|lower }} is your sun-meets-moon hour today.</h2>
+            <p class="muted">Scores blend both energy ratings and give Free more weight than Maybe.</p>
+        {% endif %}
+
+        {% set top_keys = recommendation.top|map(attribute="slot")|map(attribute="key")|list %}
+        <div class="gradient-bar result-gradient" aria-label="Recommended timeline">
+            {% for slot in slots %}
+                <span class="gradient-segment {% if slot.key in top_keys %}best-marker{% endif %}">
+                    {% if slot.key in top_keys %}
+                        <span class="star" aria-hidden="true">&#9733;</span>
+                    {% endif %}
+                    <strong>{{ slot.label }}</strong>
+                    <small>{{ slot.range }}</small>
+                </span>
+            {% endfor %}
+        </div>
+
+        {% if recommendation.ready and recommendation.ranked %}
+            <div class="ranked-list">
+                {% for item in recommendation.ranked %}
+                    <div class="ranked-row {% if item.slot.key in top_keys %}top-row{% endif %}">
+                        <span>{{ item.slot.label }}</span>
+                        <strong>{{ "%.2f"|format(item.score) }}</strong>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </section>
+
+    <section class="history-grid">
+        <div class="card">
+            <div class="card-heading">
+                <p class="eyebrow">Your last 7 days</p>
+                <h2>{{ current_user.username }}'s heatmap</h2>
+            </div>
+            <div class="heatmap-wrap">
+                <table class="heatmap">
+                    <thead>
+                        <tr>
+                            <th>Slot</th>
+                            {% for day in week.days %}
+                                <th>{{ day.strftime("%a") }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in week.rows %}
+                            <tr>
+                                <th>{{ row.slot.label }}</th>
+                                {% for cell in row.cells %}
+                                    <td class="{{ cell.class }}" title="{{ cell.title }}">{{ cell.label }}</td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-heading">
+                <p class="eyebrow">Shared pattern</p>
+                <h2>Recommendation history</h2>
+            </div>
+            <div class="history-list">
+                {% for item in shared_history %}
+                    <div class="history-item">
+                        <span>{{ item.day|friendly_date }}</span>
+                        <strong>{{ item.summary }}</strong>
+                        {% if item.score is not none %}
+                            <small>Score {{ "%.2f"|format(item.score) }}</small>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+
+            {% if insight %}
+                <p class="insight">Best historical day so far: <strong>{{ insight.weekday }}</strong> with an average top score of {{ "%.2f"|format(insight.score) }}.</p>
+            {% else %}
+                <p class="insight muted">Add a few shared days to see a best-day pattern.</p>
+            {% endif %}
+        </div>
+    </section>
+</section>
+{% endblock %}

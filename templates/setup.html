@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Set Up Profile - Best Time to Chat{% endblock %}
+
+{% block content %}
+<section class="auth-layout">
+    <div class="hero-panel">
+        <p class="eyebrow">Profile {{ profile_count + 1 }} of {{ profile_limit }}</p>
+        <h1>Create one of the two friend profiles.</h1>
+        <p class="lede">Choose the sun or moon theme for this person. Scoring only uses availability and energy.</p>
+    </div>
+
+    <form class="card auth-card" method="post">
+        <h2>Set up profile</h2>
+        <label for="username">Name</label>
+        <input id="username" name="username" maxlength="40" autocomplete="username" required>
+
+        <label for="pin">PIN</label>
+        <input id="pin" name="pin" type="password" inputmode="numeric" minlength="4" autocomplete="new-password" required>
+
+        <fieldset class="choice-field">
+            <legend>Type</legend>
+            <label class="type-choice">
+                <input type="radio" name="user_type" value="morning" checked>
+                <span class="type-icon">&#9728;</span>
+                <span>Morning Person</span>
+            </label>
+            <label class="type-choice">
+                <input type="radio" name="user_type" value="night">
+                <span class="type-icon">&#9790;</span>
+                <span>Night Owl</span>
+            </label>
+        </fieldset>
+
+        <button class="primary-button" type="submit">Create profile</button>
+    </form>
+</section>
+{% endblock %}

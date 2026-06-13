@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Best Time to Chat{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <header class="site-header">
+        <a class="brand" href="{{ url_for('index') }}">
+            <span class="brand-mark">&#9728;</span>
+            <span>Best Time to Chat</span>
+            <span class="brand-mark moon">&#9790;</span>
+        </a>
+        {% if current_user %}
+            <nav class="nav-links" aria-label="Main navigation">
+                <a href="{{ url_for('daily_input') }}">Today</a>
+                <a href="{{ url_for('results') }}">Results</a>
+                <a href="{{ url_for('profile') }}">Profile</a>
+                <a href="{{ url_for('logout') }}">Log out</a>
+            </nav>
+        {% endif %}
+    </header>
+
+    <main class="page-shell">
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="flash-stack" role="status" aria-live="polite">
+                    {% for message in messages %}
+                        <p class="flash">{{ message }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

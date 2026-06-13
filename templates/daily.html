@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}Today - Best Time to Chat{% endblock %}
+
+{% block content %}
+<section class="stacked-page">
+    <div class="section-heading with-actions">
+        <div>
+            <p class="eyebrow">Daily input</p>
+            <h1>How chat-ready are you?</h1>
+            <p class="muted">
+                Signed in as
+                <span class="avatar {{ current_user.user_type }}">
+                    {{ type_meta[current_user.user_type].icon|safe }}
+                    {{ current_user.username }}
+                </span>
+            </p>
+        </div>
+        <form class="date-picker" method="get">
+            <label for="date">Day</label>
+            <input id="date" name="date" type="date" value="{{ selected_day.isoformat() }}">
+            <button type="submit">Go</button>
+        </form>
+    </div>
+
+    <div class="gradient-bar" aria-label="Day and night timeline">
+        {% for slot in slots %}
+            <span class="gradient-segment">
+                <strong>{{ slot.label }}</strong>
+                <small>{{ slot.range }}</small>
+            </span>
+        {% endfor %}
+    </div>
+
+    <form method="post" class="slot-form">
+        <input type="hidden" name="date" value="{{ selected_day.isoformat() }}">
+        {% for slot in slots %}
+            {% set entry = entries.get(slot.key) %}
+            {% set selected_status = entry.status if entry else "Maybe" %}
+            {% set selected_energy = entry.energy if entry else 3 %}
+            <article class="card slot-card">
+                <div class="slot-card-head">
+                    <div>
+                        <h2>{{ slot.label }}</h2>
+                        <p>{{ slot.range }}</p>
+                    </div>
+                    <span class="slot-chip">{{ slot.short }}</span>
+                </div>
+
+                <fieldset class="status-options">
+                    <legend>Status</legend>
+                    {% for status in statuses %}
+                        <label>
+                            <input type="radio" name="status_{{ slot.key }}" value="{{ status }}" {% if selected_status == status %}checked{% endif %}>
+                            <span>{{ status }}</span>
+                        </label>
+                    {% endfor %}
+                </fieldset>
+
+                <label class="energy-label" for="energy_{{ slot.key }}">
+                    Energy / mood
+                    <select id="energy_{{ slot.key }}" name="energy_{{ slot.key }}">
+                        {% for value in range(1, 6) %}
+                            <option value="{{ value }}" {% if selected_energy == value %}selected{% endif %}>{{ value }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+            </article>
+        {% endfor %}
+
+        <div class="sticky-submit">
+            <button class="primary-button" type="submit">Save and see results</button>
+        </div>
+    </form>
+</section>
+{% endblock %}

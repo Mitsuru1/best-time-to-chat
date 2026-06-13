@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Log In - Best Time to Chat{% endblock %}
+
+{% block content %}
+<section class="auth-layout">
+    <div class="hero-panel">
+        <p class="eyebrow">Sun meets moon</p>
+        <h1>Pick your profile and check today's chat window.</h1>
+        <p class="lede">A tiny shared rhythm tracker for two people with different clocks.</p>
+    </div>
+
+    <form class="card auth-card" method="post">
+        <h2>Log in</h2>
+        <label for="username">Name</label>
+        <select id="username" name="username" required>
+            {% for user in users %}
+                <option value="{{ user.username }}">{{ user.username }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="pin">PIN</label>
+        <input id="pin" name="pin" type="password" inputmode="numeric" autocomplete="current-password" required>
+
+        <button class="primary-button" type="submit">Open today</button>
+
+        {% if can_setup %}
+            <p class="muted">Second friend not set up yet. <a href="{{ url_for('setup') }}">Create their profile</a>.</p>
+        {% endif %}
+    </form>
+</section>
+{% endblock %}

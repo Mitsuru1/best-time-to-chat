@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Profile - Best Time to Chat{% endblock %}
+
+{% block content %}
+<section class="stacked-page narrow">
+    <div class="section-heading">
+        <p class="eyebrow">Profile</p>
+        <h1>{{ user.username }}</h1>
+    </div>
+
+    <form class="card form-stack" method="post">
+        <fieldset class="choice-field">
+            <legend>Theme type</legend>
+            <label class="type-choice">
+                <input type="radio" name="user_type" value="morning" {% if user.user_type == "morning" %}checked{% endif %}>
+                <span class="type-icon">&#9728;</span>
+                <span>Morning Person</span>
+            </label>
+            <label class="type-choice">
+                <input type="radio" name="user_type" value="night" {% if user.user_type == "night" %}checked{% endif %}>
+                <span class="type-icon">&#9790;</span>
+                <span>Night Owl</span>
+            </label>
+        </fieldset>
+
+        <label for="pin">New PIN</label>
+        <input id="pin" name="pin" type="password" inputmode="numeric" autocomplete="new-password" placeholder="Leave blank to keep current PIN">
+
+        <button class="primary-button" type="submit">Save profile</button>
+    </form>
+</section>
+{% endblock %}
